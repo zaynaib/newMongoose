@@ -45,6 +45,17 @@ app.get("/scrape", function(req, res){
 	//call request
 	request("https://www.nytimes.com/section/food", function(err,response,html){
 		var $ = cheerio.load(html);
+		$("div.story-meta").each(function(i,element){
+			var title = $(element).children("h2.headline").text();
+			var link = $(element).parent().attr("href");
+			var summary = $(element).children("p.summary").text();
+
+			console.log("title ", title);
+			console.log("link ", link);
+			console.log("summary ", summary);
+
+		})
+		/*
 		$("h2.headline").each(function(i,element){
 
 			var result = {}
@@ -58,7 +69,8 @@ app.get("/scrape", function(req, res){
 
 			}
 
-		})
+		})//
+		*/
 	})
 	res.send("it scraped everything")
 })
