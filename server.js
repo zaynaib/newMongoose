@@ -7,6 +7,8 @@ var request = require('request');
 var cheerio = require('cheerio')
 var mongoose = require('mongoose');
 
+//Require all models
+var db = require("./models");
 
 var port = process.env.PORT || 3000;
 
@@ -29,6 +31,13 @@ mongoose.connect('mongodb://localhost/news',{useMongoClient:true});
 mongoose.Promise =global.Promise;
 
 //monitor the status of the connection
+// var db = mongoose.connection;
+// db.on('error', console.error.bind(console, 'connection error:'));
+// db.once('open', function() {
+//   // we're connected!
+//   console.log("we're connected!")
+// });
+
 
 
 // Import routes and give the server access to them.
@@ -46,46 +55,28 @@ app.get("/scrape", function(req, res){
 	request("https://www.nytimes.com/section/food", function(err,response,html){
 		var $ = cheerio.load(html);
 		$("div.story-meta").each(function(i,element){
-			var title = $(element).children("h2.headline").text();
-			var link = $(element).parent().attr("href");
-			var summary = $(element).children("p.summary").text();
+			var result = {};
 
-			console.log("title ", title);
-			console.log("link ", link);
-			console.log("summary ", summary);
+			result.title = $(this).children("h2.headline").text().trim();
+			result.link =$(this).parent().attr("href");
+			result.summary=$(this).children("p.summary").text();
 
+			//console.log(result);
+			db.Article
+				.create(result)
+				.then(function(dbArticle){
+
+				res.send("it scraped everything")
+				})
+				.catch(function(err){
+					res.json(err);
+				});
 		})
-		/*
-		$("h2.headline").each(function(i,element){
-
-			var result = {}
-			
-			var title =$(element).text();
-			var link = $(element).children("a").attr("href");
-			//console.log("title:", title);
-			//console.log("link:", link);
-
-			if(title && link){
-
-			}
-
-		})//
-		*/
+		
 	})
-	res.send("it scraped everything")
 })
 
-//scrape the title,link,body of the article
-/*
-setup handlebars
-scrape the data using cheerio and request
-then push the results in the mongo database
-then put them on the webpage
 
-
-*/
-
-//then 
 app.listen(port, function(){ 
 	console.log("App running on port " +port+"!")
 });

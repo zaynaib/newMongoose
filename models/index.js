@@ -1,4 +1,4 @@
 module.exports ={
-	Article:require("./Article"),
-	Note:require("./Note")
+	Article:require("./articles"),
+	Note:require("./notes")
 }
