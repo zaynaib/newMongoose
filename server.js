@@ -15,7 +15,7 @@ var port = process.env.PORT || 3000;
 var app = express();
 
 // Serve static content for the app from the "public" directory in the application directory.
-app.use(express.static("public"));
+app.use(express.static("views/public"));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -29,16 +29,6 @@ app.set("view engine", "handlebars");
 //the port does not matter you can just say localhost
 mongoose.connect('mongodb://localhost/news',{useMongoClient:true});
 mongoose.Promise =global.Promise;
-
-//monitor the status of the connection
-// var db = mongoose.connection;
-// db.on('error', console.error.bind(console, 'connection error:'));
-// db.once('open', function() {
-//   // we're connected!
-//   console.log("we're connected!")
-// });
-
-
 
 // Import routes and give the server access to them.
 //var routes = require("./controllers/catsController.js");
@@ -71,10 +61,52 @@ app.get("/scrape", function(req, res){
 				.catch(function(err){
 					res.json(err);
 				});
-		})
+		})//end of for loop
 		
-	})
+	})//end of request route
+})//end of route
+
+app.get("/articles", function(req,res){
+	//do the query
+	//create a promise once the query is done
+	//send all the data into backend
+	db.Article.find({})
+		.then(function(dbArticle){
+			res.json(dbArticle);
+		})
+		.catch(function(err){
+			res.json(err);
+		})
 })
+
+app.get("/articles/:id",function(req,res){
+	var id = req.params.id;
+	db.Article.findById(id)
+		.populate("note")
+		.then(function(dbArticle){
+			res.json(dbArticle);
+		})
+		.catch(function(err){
+			res.json(err);
+		})
+
+})
+
+app.post("/articles/:id",function(req,res){
+	var id = req.params.id;
+	db.Note 
+		.create(req.body)
+		.then(function(dbNote){
+			return db.Article.findOneAndUpdate({_id:id},{note:dbNote._id},{new:true});
+		})
+		.then(function(dbArticle){
+			res.json(dbArticle);
+		})
+		.catch(function(err){
+			res.json(err);
+		});
+});
+
 
 
 app.listen(port, function(){ 
