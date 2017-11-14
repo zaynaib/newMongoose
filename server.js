@@ -109,6 +109,24 @@ app.post("/articles/:id",function(req,res){
 
 
 
+
+app.delete("/articles/:id",function(req,res){
+	var id = req.params.id;
+	db.Article.findById(id)
+		.then(function(dbArticle){
+			var noteId = dbArticle.note;
+			return db.Note.findByIdAndRemove(noteId);
+		}).then(
+			function(){
+				res.send("success")
+			})
+		.catch(function(err){
+			res.json(err);
+		})
+
+});
+
+
 app.listen(port, function(){ 
 	console.log("App running on port " +port+"!")
 });
