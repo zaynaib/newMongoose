@@ -15,7 +15,7 @@ var port = process.env.PORT || 3000;
 var app = express();
 
 // Serve static content for the app from the "public" directory in the application directory.
-app.use(express.static("views/public"));
+app.use(express.static("views/layouts"));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -119,6 +119,7 @@ app.delete("/articles/:id",function(req,res){
 		}).then(
 			function(){
 				res.send("success")
+				console.log("success")
 			})
 		.catch(function(err){
 			res.json(err);
